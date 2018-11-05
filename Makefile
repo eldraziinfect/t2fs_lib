@@ -1,13 +1,11 @@
 #
-# Makefile de EXEMPLO
+# Makefile ESQUELETO
 #
-# OBRIGATÓRIO ter uma regra "all" para geração da biblioteca e de uma
+# DEVE ter uma regra "all" para geração da biblioteca
 # regra "clean" para remover todos os objetos gerados.
 #
-# É NECESSARIO ADAPTAR ESSE ARQUIVO de makefile para suas necessidades.
-#  1. Cuidado com a regra "clean" para não apagar o "support.o"
+# NECESSARIO adaptar este esqueleto de makefile para suas necessidades.
 #
-# OBSERVAR que as variáveis de ambiente consideram que o Makefile está no diretótio "cthread"
 # 
 
 CC=gcc
@@ -16,16 +14,9 @@ INC_DIR=./include
 BIN_DIR=./bin
 SRC_DIR=./src
 
-all: cthread clibthread
-	
-
-cthread: #dependências para a regra1
-	$(CC) -c $(SRC_DIR)/cthread.c -Wall -o $(BIN_DIR)/cthread.o
-
-clibthread:
-	$(CC) -c $(SRC_DIR)/cthread.c -Wall -o $(BIN_DIR)/cthread.o
-	ar rcs $(LIB_DIR)/libcthread.a $(BIN_DIR)/cthread.o $(BIN_DIR)/support.o
+all:
 
 clean:
-	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/cthread.o 
+	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
+
 
