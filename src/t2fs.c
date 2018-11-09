@@ -1,13 +1,4 @@
-#include "../include/t2fs.h"
-#include "../include/aspdisk.h"
 #include <libc.h>
-
-
-int main ()
-{	return 0;
-}
-
-/// TO DO:
 
 /*-----------------------------------------------------------------------------
 Função: Usada para identificar os desenvolvedores do T2FS.
@@ -22,8 +13,28 @@ Entra:	name -> buffer onde colocar o string de identificação.
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int identify2 (char *name, int size);
+int identify2 (char *name, int size)
 
+	char nomes[] = "Gabriel Pakulski da Silva - 00274701\nLuiz Miguel Kruger - 00228271\n";
+	int i,flag = 0;
+	for(i = 0; i < size; i++)
+	{
+		if(nomes[i] == '\0')
+		{
+			flag = 1;
+			break;
+		}
+	}
+	if(flag == 0) return -1;
+	for(i = 0; i < size && nomes[i] != '\0'; i++)
+		name[i] = nomes[i];
+	
+	name[i] = '\0';
+	return 0;
+}
+
+
+/// TO DO:
 
 /*-----------------------------------------------------------------------------
 Função: Criar um novo arquivo.
@@ -38,8 +49,9 @@ Entra:	filename -> nome do arquivo a ser criado.
 Saída:	Se a operação foi realizada com sucesso, a função retorna o handle do arquivo (número positivo).
 	Em caso de erro, deve ser retornado um valor negativo.
 -----------------------------------------------------------------------------*/
-FILE2 create2 (char *filename);
-
+FILE2 create2 (char *filename)
+{	
+}
 
 /*-----------------------------------------------------------------------------
 Função:	Apagar um arquivo do disco.
@@ -50,7 +62,9 @@ Entra:	filename -> nome do arquivo a ser apagado.
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int delete2 (char *filename);
+int delete2 (char *filename)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -67,7 +81,9 @@ Entra:	filename -> nome do arquivo a ser apagado.
 Saída:	Se a operação foi realizada com sucesso, a função retorna o handle do arquivo (número positivo)
 	Em caso de erro, deve ser retornado um valor negativo
 -----------------------------------------------------------------------------*/
-FILE2 open2 (char *filename);
+FILE2 open2 (char *filename)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -78,7 +94,9 @@ Entra:	handle -> identificador do arquivo a ser fechado
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int close2 (FILE2 handle);
+int close2 (FILE2 handle)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -94,7 +112,9 @@ Saída:	Se a operação foi realizada com sucesso, a função retorna o número de byt
 	Se o valor retornado for menor do que "size", então o contador de posição atingiu o final do arquivo.
 	Em caso de erro, será retornado um valor negativo.
 -----------------------------------------------------------------------------*/
-int read2 (FILE2 handle, char *buffer, int size);
+int read2 (FILE2 handle, char *buffer, int size)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -109,7 +129,9 @@ Entra:	handle -> identificador do arquivo a ser escrito
 Saída:	Se a operação foi realizada com sucesso, a função retorna o número de bytes efetivamente escritos.
 	Em caso de erro, será retornado um valor negativo.
 -----------------------------------------------------------------------------*/
-int write2 (FILE2 handle, char *buffer, int size);
+int write2 (FILE2 handle, char *buffer, int size)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -123,7 +145,9 @@ Entra:	handle -> identificador do arquivo a ser truncado
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int truncate2 (FILE2 handle);
+int truncate2 (FILE2 handle)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -139,7 +163,9 @@ Entra:	handle -> identificador do arquivo a ser escrito
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int seek2 (FILE2 handle, DWORD offset);
+int seek2 (FILE2 handle, DWORD offset)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -154,7 +180,9 @@ Entra:	pathname -> caminho do diretório a ser criado
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int mkdir2 (char *pathname);
+int mkdir2 (char *pathname)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -172,7 +200,9 @@ Entra:	pathname -> caminho do diretório a ser removido
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int rmdir2 (char *pathname);
+int rmdir2 (char *pathname)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -187,7 +217,9 @@ Entra:	pathname -> caminho do novo diretório de trabalho.
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 		Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int chdir2 (char *pathname);
+int chdir2 (char *pathname)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -204,7 +236,9 @@ Entra:	pathname -> buffer para onde copiar o pathname do diretório de trabalho
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 		Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int getcwd2 (char *pathname, int size);
+int getcwd2 (char *pathname, int size)
+{	
+}
 
 
 /*-----------------------------------------------------------------------------
@@ -261,7 +295,9 @@ Entra:	linkname -> nome do link a ser criado
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int ln2(char *linkname, char *filename);
+int ln2(char *linkname, char *filename)
+{	
+}
 
 #endif
 
