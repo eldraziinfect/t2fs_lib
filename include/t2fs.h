@@ -1,4 +1,7 @@
-
+#include "../include/libc.h"
+#include "../include/apidisk.h"
+#include "../include/constants.h"
+#include "../include/support.h"
 
 #ifndef __LIBT2FS___
 #define __LIBT2FS___
