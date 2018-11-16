@@ -3,12 +3,13 @@
 
 #define TRUE 1
 #define FALSE 0
-
+#define MAX_FILES 10
 #define ID_SUPERBLOCO "T2FS"
 #define VERSAO_SUPERBLOCO 0x7E2
 #define TAM_SUPERBLOCO 1
 #define TAM_SETOR 256 //bytes
 
+#define TAM_NOME_ARQUIVO 256
 
 #define ERRO_LEITURA_SUPERBLOCO "Erro inesperado na leitura de informacoes do superbloco, o programa será terminado."
 /*
