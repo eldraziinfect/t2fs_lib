@@ -58,7 +58,7 @@ void init_data()
 
 
 
-/// TO DO:
+
 /*-----------------------------------------------------------------------------
 Fun��o: Usada para identificar os desenvolvedores do T2FS.
 	Essa fun��o copia um string de identifica��o para o ponteiro indicado por "name".
@@ -129,6 +129,12 @@ int delete2 (char *filename)
     if(!initiated)
         init_data();
     return 0;
+	
+	//acha o arquivo
+	
+	//acha os blocos do arquivo
+	
+	//para cada bloco do arquivo, preenche o disco com 0
 }
 
 /*-----------------------------------------------------------------------------
@@ -151,6 +157,11 @@ FILE2 open2 (char *filename)
     if(!initiated)
         init_data();
     return 0;
+	
+	//acha o arquivo 
+		// pode ser um caminho relacional ou a partir da raiz 
+	//salva o handle do arquivo e o nome no vetor de arquivos abertos
+	//retorna o handle
 }
 
 
@@ -168,6 +179,12 @@ int close2 (FILE2 handle)
     if(!initiated)
         init_data();
     return 0;
+	
+	
+	//acha o arquivo 
+		// pode ser um caminho relacional ou a partir da raiz 
+	//tira o handle do arquivo e o nome do vetor de arquivos abertos
+	//retorna flag
 }
 
 
