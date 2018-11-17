@@ -18,10 +18,10 @@ all: t2fs libs main
 
 
 t2fs:
-	$(CC) -c $(SRC_DIR)/t2fs.c -Wall -o $(BIN_DIR)/t2fs.o
 	$(CC) -c $(SRC_DIR)/files.c -Wall -o $(BIN_DIR)/files.o
 	$(CC) -c $(SRC_DIR)/disk.c -Wall -o $(BIN_DIR)/disk.o
 	$(CC) -c $(SRC_DIR)/fat.c -Wall -o $(BIN_DIR)/fat.o
+	$(CC) -c $(SRC_DIR)/t2fs.c -Wall -o $(BIN_DIR)/t2fs.o
 
 libs:
 	ar rcs $(LIB_DIR)/libt2fs.a $(BIN_DIR)/t2fs.o $(LIB_DIR)/apidisk.o $(BIN_DIR)/files.o $(BIN_DIR)/disk.o $(BIN_DIR)/fat.o
