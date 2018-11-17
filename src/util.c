@@ -1,6 +1,8 @@
 #include "../include/libs.h"
 
-int cluster_to_sector(struct t2fs_superbloco super_bloco, int cluster){
+extern struct t2fs_superbloco super_bloco;
+
+int cluster_to_sector(int cluster){
     int inicio = super_bloco.DataSectorStart; //cluster 0 -> reservado, 1 -> reservado
     int result = inicio + cluster*super_bloco.SectorsPerCluster;
     return result;
@@ -20,10 +22,10 @@ void print_dir(struct t2fs_record record)
     return;
 }
 
-int get_root_dir(struct t2fs_superbloco super_bloco, char* buffer)
+int get_root_dir(char* buffer)
 {
     printf("Getting root dir...\n");
-    int root_dir = cluster_to_sector(super_bloco, super_bloco.RootDirCluster);//super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
+    int root_dir = cluster_to_sector(super_bloco.RootDirCluster);//super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
     struct t2fs_record record;
     if(read_cluster(root_dir, buffer) == 0)
     {

@@ -1,5 +1,5 @@
-#ifndef __FILES___
-#define __FILES___
+#ifndef __DISK___
+#define __DISK___
 
 #include "libs.h"
 

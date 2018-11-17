@@ -1,23 +1,13 @@
 #include "../include/libs.h"
-/*
-typedef struct descritor_fat
-{
-    int tamanho;
-    int inicio;
-} DESCRITOR_FAT;
 
 
-typedef struct fat
-{
-    int tabela[];
-} FAT;
-
-*/
+extern struct t2fs_superbloco super_bloco;
 
 DESCRITOR_FAT descritor_fat;
 FAT fat;
 
-int init_fat(struct t2fs_superbloco super_bloco){
+int init_fat()
+{
     int tam_fat_cluster = (super_bloco.NofSectors - super_bloco.DataSectorStart)/super_bloco.SectorsPerCluster;
     int final_fat = super_bloco.DataSectorStart - 1;
     int inicio_fat = super_bloco.pFATSectorStart;
@@ -25,7 +15,7 @@ int init_fat(struct t2fs_superbloco super_bloco){
     descritor_fat.tamanho = tam_fat_cluster;
     descritor_fat.inicio = inicio_fat;
     descritor_fat.fim = final_fat;
-    fat.tabela = malloc(tam_fat_cluster*sizeof(int));
+    //fat.tabela = malloc(tam_fat_cluster*sizeof(int));
     return 0;
 }
 
@@ -54,6 +44,12 @@ void print_fat()
     printf("---------------------------------------------\n");
 
 }
+/*
+void get_elemento_fat(int i)
+{
+
+}
+*/
 
 
 

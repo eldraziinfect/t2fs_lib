@@ -14,9 +14,10 @@ typedef struct fat
 {
     int* tabela;
 } FAT;
-int init_fat(struct t2fs_superbloco sb);
+int init_fat();
 int get_tamanho_fat();
 int get_inicio_fat();
 int get_final_fat();
 void print_fat();
+//get_elemento_fat(int i);
 #endif

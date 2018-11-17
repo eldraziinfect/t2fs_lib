@@ -7,16 +7,11 @@ static int initiated = 0;
 struct t2fs_superbloco super_bloco;
 struct t2fs_record registro;
 DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
-/*
-FAT FatTable;
-DESCRITOR_FAT descritor_fat;
-*/
+
 char *buffer_cluster;
 
 //Funções:
 void init_data(void);
-//int get_root_dir(char* buffer);
-//void print_dir(struct t2fs_record record);
 
 void init_data(void)
 {
@@ -35,12 +30,12 @@ void init_data(void)
         printf("RootDirCluster: %d\n",super_bloco.RootDirCluster);
         printf("DataSectorStart: %d\n",super_bloco.DataSectorStart);
 
-        init_fat(super_bloco);
+        init_fat();
         print_fat();
 
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
-        get_root_dir(super_bloco,buffer_cluster);
+        get_root_dir(buffer_cluster);
         initiated = 1;
         return;
     }
@@ -50,42 +45,7 @@ void init_data(void)
         exit(1);
     }
 }
-/*
-void print_dir(struct t2fs_record record)
-{
-    printf("---------------------------------------------\n");
-    printf("Printando diretorio: \n");
-    printf("TypeVal: %d\n", record.TypeVal);
-    printf("Name : %s\n", record.name);
-    printf("BytesFileSize: %d bytes\n", record.bytesFileSize);
-    printf("ClustersFileSize: %d clusters\n", record.clustersFileSize);
-    printf("FirstCluster: %d\n", record.firstCluster);
-    printf("---------------------------------------------\n");
-    return;
-}
-int cluster_to_sector(int cluster){
-    int inicio = super_bloco.DataSectorStart; //cluster 0 -> reservado, 1 -> reservado
-    return inicio + cluster*super_bloco.SectorsPerCluster;
-}
 
-int get_root_dir(char* buffer)
-{
-    printf("Getting root dir...\n");
-    int root_dir = cluster_to_sector(super_bloco.RootDirCluster);//super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
-    struct t2fs_record record;
-    if(read_cluster(root_dir, buffer) == 0)
-    {
-        memcpy(&record,buffer,sizeof(struct t2fs_record));
-        print_dir(record);
-        return 0;
-    }
-    else
-    {
-        printf("********Unable to get root dir********\n");
-        return -1;
-    }
-}
-*/
 /// TO DO:
 /*-----------------------------------------------------------------------------
 Fun��o: Usada para identificar os desenvolvedores do T2FS.
