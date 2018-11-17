@@ -1,11 +1,5 @@
 #include "../include/libs.h"
 
-typedef struct fat
-{
-    int inicio;
-    int* lista;
-    int c;
-} FAT;
 
 // Variáveis Globais
 static int initiated = 0;
@@ -13,7 +7,10 @@ static int number_of_files = 0;
 struct t2fs_superbloco super_bloco;
 struct t2fs_record registro;
 DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
+/*
 FAT FatTable;
+DESCRITOR_FAT descritor_fat;
+*/
 char *buffer_cluster;
 
 //Funções:
@@ -24,10 +21,8 @@ void print_dir(struct t2fs_record record);
 void init_data(void)
 {
     init_tabela_arquivos(tabela_de_arquivos);
-    //char *buffer;
-    if (!read_sector(0, /*(struct t2fs_superbloco *)*/ (unsigned char *) &super_bloco))
+    if (!read_sector(0, (unsigned char *) &super_bloco))
     {
-        int final_fat;
         printf("Superbloco\n");
         super_bloco.id[4] = '\0';
         printf("Id: %s\n",super_bloco.id);
@@ -40,18 +35,8 @@ void init_data(void)
         printf("RootDirCluster: %d\n",super_bloco.RootDirCluster);
         printf("DataSectorStart: %d\n",super_bloco.DataSectorStart);
 
-        int tam_fat_cluster = (super_bloco.NofSectors - super_bloco.DataSectorStart)/super_bloco.SectorsPerCluster;
-        FatTable.inicio = super_bloco.pFATSectorStart;
-        final_fat = super_bloco.DataSectorStart - 1;
-        FatTable.c = tam_fat_cluster;//final_fat-FatTable.inicio;//super_bloco.NofSectors/super_bloco.SectorsPerCluster;
-        FatTable.lista = malloc(tam_fat_cluster * sizeof(int));
-        printf("---------------------------------------------\n");
-        printf("FAT\n");
-        printf("Tamanho: %d (entradas)\n", FatTable.c);
-        printf("Inicio: %d (setor logico)\n", FatTable.inicio);
-        printf("Fim: %d\n", final_fat);
-        printf("C = %d (clusters)\n",tam_fat_cluster);
-        printf("---------------------------------------------\n");
+        init_fat(super_bloco);
+        print_fat();
 
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
