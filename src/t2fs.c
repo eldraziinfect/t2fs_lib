@@ -1,11 +1,5 @@
 #include "../include/libs.h"
 
-static int initiated = 0;
-static int number_of_files = 0;
-
-
-struct t2fs_superbloco super_bloco;
-struct t2fs_record registro;
 
 typedef struct fat
 {
@@ -14,8 +8,16 @@ typedef struct fat
     int c;
 } FAT;
 
+// Variáveis Globais
+static int initiated = 0;
+static int number_of_files = 0;
+struct t2fs_superbloco super_bloco;
+struct t2fs_record registro;
 DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
 FAT FatTable;
+char *buffer_cluster;
+
+
 void init_data()
 {
     init_tabela_arquivos(tabela_de_arquivos);
@@ -48,6 +50,8 @@ void init_data()
         printf("C = %d (clusters)\n",tam_fat_cluster);
         printf("---------------------------------------------\n");
 
+        buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
+        init_api_cluster(super_bloco.SectorsPerCluster);
         initiated = 1;
         return;
     }
