@@ -16,4 +16,9 @@ int insert_tabela_descritores_de_arquivo(DESCRITOR_ARQUIVO tabela[],struct t2fs_
 int remove_descritor(DESCRITOR_ARQUIVO tabela[], int i);
 int get_descritor(DESCRITOR_ARQUIVO tabela[], char nome[]);
 int atualiza_descritor(DESCRITOR_ARQUIVO tabela[], int i);
+
+
+int move_pointer(DESCRITOR_ARQUIVO tabela[], int handle, int offset);
+int get_file_pointer(DESCRITOR_ARQUIVO tabela[], int handle);
+
 #endif

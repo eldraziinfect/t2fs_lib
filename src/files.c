@@ -79,6 +79,22 @@ int atualiza_descritor(DESCRITOR_ARQUIVO tabela[], int i)
 }
 
 
+int move_pointer(DESCRITOR_ARQUIVO tabela[], int handle, int offset)
+{	if(tabela[handle]!=0)
+	{	tabela[handle].current_pointer += offset;
+		return 0;
+	}
+	else
+	{	return -1;
+	}
+}
 
-
+int get_file_pointer(DESCRITOR_ARQUIVO tabela[], int handle)
+{	if(tabela[handle]!=0)
+	{	return tabela[handle].current_pointer;
+	}
+	else
+	{	return -1;
+	}
+}
 
