@@ -1,6 +1,5 @@
 #include "../include/libs.h"
 
-
 typedef struct fat
 {
     int inicio;
@@ -17,12 +16,16 @@ DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
 FAT FatTable;
 char *buffer_cluster;
 
+//Funções:
+void init_data(void);
+int get_root_dir(char* buffer);
+void print_dir(struct t2fs_record record);
 
-void init_data()
+void init_data(void)
 {
     init_tabela_arquivos(tabela_de_arquivos);
     //char *buffer;
-    if (!read_sector(0, (struct t2fs_superbloco *) &super_bloco))
+    if (!read_sector(0, /*(struct t2fs_superbloco *)*/ (unsigned char *) &super_bloco))
     {
         int final_fat;
         printf("Superbloco\n");
@@ -52,6 +55,7 @@ void init_data()
 
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
+        get_root_dir(buffer_cluster);
         initiated = 1;
         return;
     }
@@ -62,8 +66,36 @@ void init_data()
     }
 }
 
+void print_dir(struct t2fs_record record)
+{
+    printf("---------------------------------------------\n");
+    printf("Printando diretorio: \n");
+    printf("TypeVal: %d\n", record.TypeVal);
+    printf("Name : %s\n", record.name);
+    printf("BytesFileSize: %d\n", record.bytesFileSize);
+    printf("ClustersFileSize: %d\n", record.clustersFileSize);
+    printf("FirstCluster: %d\n", record.firstCluster);
+    printf("---------------------------------------------\n");
+    return;
+}
 
-
+int get_root_dir(char* buffer)
+{
+    printf("Getting root dir...\n");
+    int root_dir = super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
+    struct t2fs_record record;
+    if(read_cluster(root_dir, buffer) == 0)
+    {
+        memcpy(&record,buffer,sizeof(struct t2fs_record));
+        print_dir(record);
+        return 0;
+    }
+    else
+    {
+        printf("********Unable to get root dir********\n");
+        return -1;
+    }
+}
 /// TO DO:
 /*-----------------------------------------------------------------------------
 Fun��o: Usada para identificar os desenvolvedores do T2FS.
@@ -430,5 +462,5 @@ int ln2(char *linkname, char *filename)
     if(!initiated)
         init_data();
     return 0;
-    }
+}
 

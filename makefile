@@ -23,10 +23,11 @@ t2fs:
 	$(CC) -c $(SRC_DIR)/disk.c -Wall -o $(BIN_DIR)/disk.o
 
 libs:
-	ar rcs $(LIB_DIR)/libt2fs.a $(BIN_DIR)/t2fs.o $(LIB_DIR)/apidisk.o $(BIN_DIR)/files.o
+	ar rcs $(LIB_DIR)/libt2fs.a $(BIN_DIR)/t2fs.o $(LIB_DIR)/apidisk.o $(BIN_DIR)/files.o $(BIN_DIR)/disk.o
 main:
 	gcc -c main.c
-	gcc -o mp main.o $(BIN_DIR)/t2fs.o $(LIB_DIR)/apidisk.o $(BIN_DIR)/files.o $(BIN_DIR)/disk.o #lembrar de mudar o apidisk
+	gcc -o mp main.o $(BIN_DIR)/t2fs.o $(LIB_DIR)/apidisk.o $(BIN_DIR)/files.o $(BIN_DIR)/disk.o
+	#lembrar de mudar o apidisk
 
 clean:
 	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~

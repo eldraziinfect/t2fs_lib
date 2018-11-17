@@ -13,7 +13,7 @@ int write_cluster(int sector, char *buffer)
     int i = 0;
     while(i < tam_cluster)
     {
-        if(!write_sector(sector+i,buffer+i*TAM_SETOR))
+        if(write_sector(sector+i,(unsigned char *) buffer+i*TAM_SETOR))
             return -1;
         i++;
     }
@@ -25,12 +25,9 @@ int read_cluster(int sector, char *buffer)
     int i = 0;
     while(i < tam_cluster)
     {
-        if(!read_sector(sector+i,buffer+i*TAM_SETOR))
+        if(read_sector(sector+i,(unsigned char *) buffer+i*TAM_SETOR))
             return -1;
         i++;
     }
     return 0;
 }
-
- int read_sector (unsigned int sector, unsigned char *buffer);
- int write_sector (unsigned int sector, unsigned char *buffer);
