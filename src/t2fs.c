@@ -19,7 +19,7 @@ FAT FatTable;
 void init_data()
 {
     init_tabela_arquivos(tabela_de_arquivos);
-    char *buffer;
+    //char *buffer;
     if (!read_sector(0, (struct t2fs_superbloco *) &super_bloco))
     {
         int final_fat;
@@ -112,9 +112,14 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 -----------------------------------------------------------------------------*/
 FILE2 create2 (char *filename)
 {
+    /**
+    TODO:
+        Inserir no disco.
+     */
+    struct t2fs_record record;
     if(!initiated)
         init_data();
-    return 0;
+    return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 }
 /*-----------------------------------------------------------------------------
 Fun��o:	Apagar um arquivo do disco.
@@ -169,7 +174,11 @@ int close2 (FILE2 handle)
 {
     if(!initiated)
         init_data();
-    return 0;
+    return remove_descritor(tabela_de_arquivos,handle);
+    /**
+    TODO:
+        Salvar o conteúdo do arquivo no disco.
+    */
 }
 
 
