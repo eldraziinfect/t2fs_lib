@@ -3,7 +3,7 @@
 
 // Variáveis Globais
 static int initiated = 0;
-static int number_of_files = 0;
+//static int number_of_files = 0;
 struct t2fs_superbloco super_bloco;
 struct t2fs_record registro;
 DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
@@ -15,8 +15,8 @@ char *buffer_cluster;
 
 //Funções:
 void init_data(void);
-int get_root_dir(char* buffer);
-void print_dir(struct t2fs_record record);
+//int get_root_dir(char* buffer);
+//void print_dir(struct t2fs_record record);
 
 void init_data(void)
 {
@@ -26,8 +26,8 @@ void init_data(void)
         printf("Superbloco\n");
         super_bloco.id[4] = '\0';
         printf("Id: %s\n",super_bloco.id);
-        printf("Versao: %x\n",super_bloco.version+0x22);
-        printf("Tamanho: %d - quantidade de setores logicos que formam o superbloco\n",super_bloco.superblockSize);
+        printf("Versao: %X\n",super_bloco.version+0x22);
+        printf("Tamanho: %hu - quantidade de setores logicos que formam o superbloco\n",super_bloco.superblockSize);
         printf("Disk Size: %d bytes\n",super_bloco.DiskSize);
         printf("Number of Sectors: %d setores\n",super_bloco.NofSectors);
         printf("Sectors per cluster: %d\n",super_bloco.SectorsPerCluster);
@@ -40,7 +40,7 @@ void init_data(void)
 
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
-        get_root_dir(buffer_cluster);
+        get_root_dir(super_bloco,buffer_cluster);
         initiated = 1;
         return;
     }
@@ -50,24 +50,28 @@ void init_data(void)
         exit(1);
     }
 }
-
+/*
 void print_dir(struct t2fs_record record)
 {
     printf("---------------------------------------------\n");
     printf("Printando diretorio: \n");
     printf("TypeVal: %d\n", record.TypeVal);
     printf("Name : %s\n", record.name);
-    printf("BytesFileSize: %d\n", record.bytesFileSize);
-    printf("ClustersFileSize: %d\n", record.clustersFileSize);
+    printf("BytesFileSize: %d bytes\n", record.bytesFileSize);
+    printf("ClustersFileSize: %d clusters\n", record.clustersFileSize);
     printf("FirstCluster: %d\n", record.firstCluster);
     printf("---------------------------------------------\n");
     return;
+}
+int cluster_to_sector(int cluster){
+    int inicio = super_bloco.DataSectorStart; //cluster 0 -> reservado, 1 -> reservado
+    return inicio + cluster*super_bloco.SectorsPerCluster;
 }
 
 int get_root_dir(char* buffer)
 {
     printf("Getting root dir...\n");
-    int root_dir = super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
+    int root_dir = cluster_to_sector(super_bloco.RootDirCluster);//super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
     struct t2fs_record record;
     if(read_cluster(root_dir, buffer) == 0)
     {
@@ -81,6 +85,7 @@ int get_root_dir(char* buffer)
         return -1;
     }
 }
+*/
 /// TO DO:
 /*-----------------------------------------------------------------------------
 Fun��o: Usada para identificar os desenvolvedores do T2FS.

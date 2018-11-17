@@ -1,9 +1,11 @@
-#include "libc.h"
-#include "apidisk.h"
+
 #include "constants.h"
-#include "support.h"
 #include "files.h"
 #include "disk.h"
+#include "fat.h"
+#include "util.h"
 #include "t2fs.h"
-#include <string.h>
+#include "libc.h"
+#include "apidisk.h"
+#include "support.h"
 
