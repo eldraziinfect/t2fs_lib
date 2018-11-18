@@ -9,6 +9,8 @@ struct t2fs_record registro;
 DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
 
 char *buffer_cluster;
+char  *current_dir_pointer;
+//char *current_dir_name;
 
 //Funções:
 void init_data(void);
@@ -36,6 +38,7 @@ void init_data(void)
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
         get_root_dir(buffer_cluster);
+		current_dir = super_bloco.RootDirCluster;
         initiated = 1;
         return;
     }
@@ -98,13 +101,45 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 -----------------------------------------------------------------------------*/
 FILE2 create2 (char *filename)
 {
-    /**
-    TODO:
-        Inserir no disco.
-     */
     struct t2fs_record record;
+	char *token;
+	int *temp_dir;
+	
     if(!initiated)
         init_data();
+    /**
+    TODO:
+		Inserir no disco.
+    */
+	 
+	if(filename[0]=='/') // caminho absoluto
+	{	//muda o diretório para o root:
+		// pega o endereço no super bloco.
+		temp_dir = super_bloco.RootDirCluster;
+	}
+	// faz o percorrimento
+	while(ainda tem subdivisoes no nome)
+		temp = strtok(filename, '/')
+		if(temp == ".") //same dir
+		{	//não faz nada, já está no diretório certo
+		}
+		else
+		{	if(temp == "..") //father dir
+			{	// acha o ponteiro pro diretório pai:
+				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
+				seek_file_in_cluster
+			}
+			else // sub dir or file name
+			{	// percorre o diretório atual, tentando encontrar o arquivo com o mesmo nome de temp
+				if(achou)
+					// se for um diretório: abre ele; = cd temp
+					// se for um arquivo: erro - arquivo já existe
+				else
+					//cria o arquivo:
+					// procura espaço na FAT
+			}
+		}
+	}
     return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 }
 /*-----------------------------------------------------------------------------
