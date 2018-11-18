@@ -39,3 +39,23 @@ int get_root_dir(char* buffer)
         return -1;
     }
 }
+
+
+int seek_file_in_dir(int sector, char* file_name)
+{	t2fs_record iterator;
+	buffer = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
+	
+	read_sector(sector,(unsigned char *) buffer);
+	
+	int i=0;
+	while( i<TAM_SETOR/64)
+	{	memcpy(&iterator,buffer+i*sizeof(struct t2fs_record), sizeof(struct t2fs_record));
+		if(strcomp(iterator.name, file_name) == 0)
+		{	free(buffer);
+			return iterator.firstCluster;;
+		}
+	i++;
+	}
+return -1;
+}
+
