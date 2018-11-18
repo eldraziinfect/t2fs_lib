@@ -36,6 +36,9 @@ void init_data(void)
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
         get_root_dir(buffer_cluster);
+
+        test_fat(); //testa os elementos da fat.
+
         initiated = 1;
         return;
     }
