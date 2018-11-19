@@ -188,44 +188,53 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 FILE2 create2 (char *filename)
 {
     struct t2fs_record record;
-    char *token;
-    int *temp_dir;
+	string temp = "init";
+	char *temp_dir;
+	char *achou;
+	int  flag_arquivo_existente = 0;
 
     if(!initiated)
         init_data();
-    /**
-    TODO:
-    	Inserir no disco.
-    */
-    /*
-    	if(filename[0]=='/') // caminho absoluto
-    	{	//muda o diretório para o root:
-    		// pega o endereço no super bloco.
-    		temp_dir = super_bloco.RootDirCluster;
-    	}
-    	// faz o percorrimento
-    	while(1==1) //ainda tem subdivisoes no nome)
-    		char* temp = strtok(filename, '/');
-    		if(temp == ".") //same dir
-    		{	//não faz nada, já está no diretório certo
-    		}
-    		else
-    		{	if(temp == "..") //father dir
-    			{	// acha o ponteiro pro diretório pai:
-    				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
-    				seek_file_in_cluster(temp_dir, "..");
-    			}
-    			else // sub dir or file name
-    			{	// percorre o diretório atual, tentando encontrar o arquivo com o mesmo nome de temp
-    				if(achou)
-    					// se for um diretório: abre ele; = cd temp
-    					// se for um arquivo: erro - arquivo já existe
-    				else
-    					//cria o arquivo:
-    					// procura espaço na FAT
-    			}
-    		}
-    	}*/
+
+	if(filename[0]=='/') // caminho absoluto
+	{	//muda o diretório para o root:
+		// pega o endereço no super bloco.
+		temp_dir = super_bloco.RootDirCluster;
+	}
+	// faz o percorrimento
+	temp = strtok(filename, '/');
+	if(temp==NULL) return -1;
+	while(temp!=NULL) //ainda tem subdivisoes no nome)
+	{	if(flag_arquivo_existente == 1)
+		{	return -1; // caminho inválido pois tem '/' depois do nome de um não-dir já existente
+		}
+		if(temp == ".") //same dir
+		{	//não faz nada, já está no diretório certo
+		}
+		else
+		{	if(temp == "..") //father dir
+			{	// acha o ponteiro pro diretório pai:
+				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
+				temp_dir = seek_dir_in_cluster(temp_dir, "..");
+			}
+			else // sub dir or file name
+			{	// percorre o diretório atual, tentando encontrar diretório com o mesmo nome de temp
+				temp_dir = seek_dir_in_cluster(temp_dir, temp);
+
+				if(seek_file_in_cluster(temp_dir, temp)	!= -1)
+					{	flag_arquivo_existente = 1;	// deve-se abrir o arquivo e deixá-lo com 0 bytes
+					}
+			}
+		}
+		temp = strtok(filename, '/');
+	}
+
+	//cria o arquivo:
+	// procura espaço na FAT
+	/**
+	TODO:
+		Inserir no disco.
+	*/
     return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 }
 /*-----------------------------------------------------------------------------
