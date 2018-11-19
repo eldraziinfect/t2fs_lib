@@ -211,8 +211,9 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 -----------------------------------------------------------------------------*/
 FILE2 create2 (char *filename)
 {
-    /*
+    
         struct	t2fs_record record_vazia;
+        struct	t2fs_record record;
     	char	*temp = "init";
     	char	*ultimo_temp = "init";
     	char	*temp_dir;
@@ -250,9 +251,9 @@ FILE2 create2 (char *filename)
     				temp_dir = seek_dir_in_dir(temp_dir, temp); // Talvez isso avacalhe o valor do dir
 
     				if(seek_file_in_dir(temp_dir, temp)	!= -1)
-    				{	temp_dir = seek_dir_in_cluster(temp_dir, temp);
+    				{	temp_dir = seek_dir_in_dir(temp_dir, temp);
     				}
-    				if(seek_file_in_cluster(temp_dir, temp)	!= -1)
+    				if(seek_file_in_dir(temp_dir, temp)	!= -1)
     					{	flag_arquivo_existente = 1;	// deve-se abrir o arquivo e deixá-lo com 0 bytes
     					}
     			}
@@ -291,12 +292,17 @@ FILE2 create2 (char *filename)
     	set_elemento_fat(endereco_FAT, EOF);
 
     	//inclui os dados no diretório
+	record.TypeVal = 0x01;
+        strcpy(record.name,ultimo_temp);
+	record.bytesFileSize = 0;
+	record.clustersFileSize = 0x01;
+	record.firstCluster = endereco_FAT;
 
-    	insert_record(ultimo_dir, vazio);
+    	insert_record(ultimo_dir, record);
     	//Não inclui os dados do arquivo nos dados pq ele inicia com 0 bytes (empty)
 
-    */
-    return 0;//insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
+    
+    return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 
 }
 /*-----------------------------------------------------------------------------
@@ -309,8 +315,9 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 
 int delete2 (char *filename)
 {
-    /*
+    
     struct	t2fs_record record_vazia;
+    struct	t2fs_record record;
     char	*temp = "init";
     char	*ultimo_temp = "init";
     char	*temp_dir;
@@ -319,8 +326,6 @@ int delete2 (char *filename)
     int		endereco_FAT,j;
     unsigned char* vazio = calloc(64, sizeof(unsigned char));
     unsigned char* buffer_vazio = calloc(64, sizeof(unsigned char));
-    buffer_setor_vazio
-    int j;
 
     if(!initiated)
         init_data();
@@ -331,7 +336,7 @@ int delete2 (char *filename)
     {	temp_dir = super_bloco.RootDirCluster; //muda o diretório para o root
     }
     // faz o percorrimento
-    temp = strtok(filename, '/');
+    temp = strtok(filename, "/");
     if(temp==NULL) return -1;
     while(temp!=NULL) //ainda tem subdivisoes no nome)
     {	if(flag_arquivo_existente == 1)
@@ -356,7 +361,7 @@ int delete2 (char *filename)
     		}
     	}
     	ultimo_temp = temp;
-    	temp = strtok(filename, '/');
+    	temp = strtok(filename, "/");
     }
     //deleta o arquivo:
     if(flag_arquivo_existente)
@@ -365,16 +370,16 @@ int delete2 (char *filename)
     	{	endereco_FAT = get_elemento_fat(ultimo_dir);// acha o registro do arquivo na fat
 
     		for(j = 0; j< super_bloco.SectorsPerCluster; j++)
-    		{	write_sector(cluster_to_sector(endereco_FAT) + j, buffer_setor_vazio); //apaga nos dados
+    		{	write_sector(cluster_to_sector(endereco_FAT) + j, buffer_vazio); //apaga nos dados
     		}
     		set_elemento_fat(endereco_FAT, 0x0); // indica que o espaço no disco está livre
     	}
     	while(endereco_FAT != EOF);
     }
 
-    insert_record(ultimo_dir, record_vazia); // elimina do diretório
-    */
-    return 0;//insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
+    free_dir_entry(ultimo_dir, ultimo_temp);
+    /* */
+    return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 
 }
 
