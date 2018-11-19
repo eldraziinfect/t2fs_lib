@@ -67,9 +67,11 @@ int get_root_dir(unsigned char* buffer)
 
 int seek_dir_in_dir(int cluster, char* dir_name)
 {
+    printf("Cluster: %d -> DID: %s\n",cluster,dir_name);
     int sector = cluster_to_sector(cluster);
     char* buffer = malloc(TAM_SETOR);
     struct t2fs_record iterator;
+    int retorno = -1;
     int i,j;
     for(i = 0; i < super_bloco.SectorsPerCluster; i++)
     {
@@ -78,18 +80,22 @@ int seek_dir_in_dir(int cluster, char* dir_name)
         while(j < TAM_SETOR/sizeof(struct t2fs_record))
         {
             memcpy(&iterator,buffer+(j*sizeof(struct t2fs_record)), sizeof(struct t2fs_record));
-            if(strncmp(iterator.name, dir_name,strlen(dir_name)) == 0)
+            if(strcmp(iterator.name, dir_name) == 0)
             {
-                if(iterator.TypeVal == TYPEVAL_DIRETORIO){
-                free(buffer);
-                return iterator.firstCluster;
+                if(iterator.TypeVal == TYPEVAL_DIRETORIO)
+                {
+                    printf("!\n");
+                    retorno = iterator.firstCluster;
+                    break;
                 }
             }
             j++;
         }
     }
+    free(buffer);
     //printf("\nSeek Dir In Dir\nProcurei por: %s\nCluster : %d\nNao achei\n",dir_name,cluster);
-    return -1;
+    printf("Nao era pra chegar, mas chegou \n");
+    return retorno;
 }
 int seek_file_in_dir(int cluster, char* file_name)
 {
@@ -138,6 +144,7 @@ int seek_dir_by_first_cluster(int cluster, int first_cluster, char *dir_name)
             j++;
         }
     }
+    free(buffer);
     return -1;
 }
 
@@ -154,10 +161,13 @@ int get_dir_name(int cluster, char *buffer)
 
 int get_dir_tree(int current_dir_pointer, char* buffer)
 {
+    if(current_dir_pointer == super_bloco.RootDirCluster)
+    {
+        strcpy(buffer,"/");
+        return 0;
+    }
     get_dir_name(current_dir_pointer,buffer);
-
-    char *aux = malloc(TAM_NOME_ARQUIVO+1);
-
+    char* aux = malloc(TAM_NOME_ARQUIVO+1);
     int dir_pai = seek_dir_in_dir(current_dir_pointer,"..");
 
     if(dir_pai == -1)
@@ -170,9 +180,10 @@ int get_dir_tree(int current_dir_pointer, char* buffer)
         get_dir_name(dir_pai,aux);
         prepend(buffer,aux);
         dir_pai = seek_dir_in_dir(dir_pai,"..");
+        strcpy(aux,"");
     }
     prepend(buffer,"/");
-    free (aux);
+    free(aux);
     return 0;
 }
 
@@ -189,7 +200,8 @@ void prepend(char* s, const char* t)
     }
 }
 
-int get_free_record(int cluster){
+int get_free_record(int cluster)
+{
 
     return 0;
 }
