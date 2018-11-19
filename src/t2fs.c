@@ -187,8 +187,8 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 FILE2 create2 (char *filename)
 {
     struct	t2fs_record record;
-	string	temp = "init";
-	string	ultimo_temp = "init";
+	char	*temp = "init";
+	char	*ultimo_temp = "init";
 	char	*temp_dir;
 	char	*ultimo_dir;
 	int	flag_arquivo_existente = 0;
