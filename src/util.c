@@ -51,12 +51,11 @@ void print_sector_as_dir(int cluster)
 int get_root_dir(unsigned char* buffer)
 {
     printf("Getting root dir...\n");
-    int root_dir = cluster_to_sector(super_bloco.RootDirCluster);//super_bloco.DataSectorStart + super_bloco.RootDirCluster*super_bloco.SectorsPerCluster; //início + offset
+    int root_dir = cluster_to_sector(super_bloco.RootDirCluster);
     struct t2fs_record record;
     if(read_cluster(root_dir, buffer) == 0)
     {
         memcpy(&record,buffer,sizeof(struct t2fs_record));
-        //print_dir(record);
         return 0;
     }
     else
@@ -68,30 +67,6 @@ int get_root_dir(unsigned char* buffer)
 
 int seek_dir_in_dir(int cluster, char* dir_name)
 {
-/*
-    struct t2fs_record iterator;
-    unsigned char* buffer = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
-
-    int parsed_cluster = cluster_to_sector(cluster);
-    read_cluster(parsed_cluster, buffer);
-
-    int i=0;
-    while( i < (super_bloco.SectorsPerCluster*TAM_SETOR/sizeof(struct t2fs_record)))
-    {
-        memcpy(&iterator,buffer+i*sizeof(struct t2fs_record), sizeof(struct t2fs_record));
-        print_dir(iterator);
-        if(strncmp(iterator.name, dir_name,strlen(dir_name)) == 0) //,strlen(dir_name)
-        {
-            if(iterator.TypeVal == TYPEVAL_DIRETORIO){
-
-                free(buffer);
-
-                return iterator.firstCluster;
-            }
-        }
-        i++;
-    }
-    */
     int sector = cluster_to_sector(cluster);
     char* buffer = malloc(TAM_SETOR);
     struct t2fs_record iterator;
@@ -103,7 +78,6 @@ int seek_dir_in_dir(int cluster, char* dir_name)
         while(j < TAM_SETOR/sizeof(struct t2fs_record))
         {
             memcpy(&iterator,buffer+(j*sizeof(struct t2fs_record)), sizeof(struct t2fs_record));
-            printf("Dir name: %s | IT: %s\n",dir_name,iterator.name);
             if(strncmp(iterator.name, dir_name,strlen(dir_name)) == 0)
             {
                 if(iterator.TypeVal == TYPEVAL_DIRETORIO){
@@ -114,7 +88,7 @@ int seek_dir_in_dir(int cluster, char* dir_name)
             j++;
         }
     }
-    printf("\nSeek Dir In Dir\nProcurei por: %s\nCluster : %d\nNao achei\n",dir_name,cluster);
+    //printf("\nSeek Dir In Dir\nProcurei por: %s\nCluster : %d\nNao achei\n",dir_name,cluster);
     return -1;
 }
 int seek_file_in_dir(int cluster, char* file_name)
@@ -143,34 +117,7 @@ int seek_file_in_dir(int cluster, char* file_name)
 
 
 int seek_dir_by_first_cluster(int cluster, int first_cluster, char *dir_name)
-{/*
-    struct t2fs_record iterator;
-    unsigned char* buffer = malloc(TAM_SETOR);
-    int parsed_cluster = cluster_to_sector(cluster);
-    read_cluster(parsed_cluster, buffer);
-    int i=0;
-    while( i < (super_bloco.SectorsPerCluster*TAM_SETOR/sizeof(struct t2fs_record)))
-    {
-        memcpy(&iterator,buffer+i*sizeof(struct t2fs_record), sizeof(struct t2fs_record));
-        print_dir(iterator);
-        if(iterator.firstCluster == first_cluster)
-        {
-            free(buffer);
-            if(iterator.TypeVal == TYPEVAL_DIRETORIO)
-            {
-                if(strcmp(iterator.name,".") != 0)
-                    strcpy(dir_name,iterator.name);
-                    return 0;
-            }
-            else
-                return -1;
-        }
-        i++;
-    }
-    free(buffer);
-    return -1;
-*/
-
+{
     int sector = cluster_to_sector(cluster);
     char* buffer = malloc(TAM_SETOR);
     struct t2fs_record iterator;
@@ -196,56 +143,35 @@ int seek_dir_by_first_cluster(int cluster, int first_cluster, char *dir_name)
 
 int get_father_dir(int cluster)
 {
-    int sector = cluster_to_sector(cluster);
-    char* buffer = malloc(TAM_SETOR);
-    struct t2fs_record iterator;
-    int i,j;
-
-    for(i = 0; i < super_bloco.SectorsPerCluster; i++)
-    {
-        read_sector(i+sector,buffer);
-        j = 0;
-        while(j < TAM_SETOR/sizeof(struct t2fs_record))
-        {
-            memcpy(&iterator,buffer+(j*sizeof(struct t2fs_record)), sizeof(struct t2fs_record));
-            if(strncmp(iterator.name,"..",strlen("..")))
-            {
-                return iterator.firstCluster;
-            }
-            j++;
-        }
-    }
-  //  printf("entrou na get_father_dir!Cluster: %d\n",cluster);
-    return -1;
+    return seek_dir_in_dir(cluster,"..");
 }
 
 int get_dir_name(int cluster, char *buffer)
 {
-//    printf("entrou na get_dir_name! Cluster: %d\n",cluster);
     seek_dir_by_first_cluster(get_father_dir(cluster),cluster,buffer);
     return 0;
 }
 
 int get_dir_tree(int current_dir_pointer, char* buffer)
 {
-    //printf("Chegou %d e %s aqui.\n",current_dir_pointer, buffer);
-    char *aux = malloc(TAM_NOME_ARQUIVO+1);
     get_dir_name(current_dir_pointer,buffer);
-    //printf("Nome: %s\n",buffer);
+
+    char *aux = malloc(TAM_NOME_ARQUIVO+1);
+
     int dir_pai = seek_dir_in_dir(current_dir_pointer,"..");
-    //printf("Dir Pai: %d\n",dir_pai);
+
     if(dir_pai == -1)
         return -1;
+
     int ant = dir_pai;
     while(dir_pai != super_bloco.RootDirCluster)
     {
-        //prepend(buffer,"/");
+        prepend(buffer,"/");
         get_dir_name(dir_pai,aux);
-        //prepend(buffer,aux);
+        prepend(buffer,aux);
         dir_pai = seek_dir_in_dir(dir_pai,"..");
-    //printf("Dir Pai: %d\n",dir_pai);
     }
-    //prepend(buffer,"/");
+    prepend(buffer,"/");
     free (aux);
     return 0;
 }
@@ -269,7 +195,7 @@ int get_free_record(int cluster){
 }
 
 
-int insert_record2(int cluster, struct t2fs_record r1)
+int insert_record(int cluster, struct t2fs_record r1)
 {
     int sector = cluster_to_sector(cluster);
     char* buffer = malloc(TAM_SETOR);
@@ -296,57 +222,6 @@ int insert_record2(int cluster, struct t2fs_record r1)
     return -1;
 }
 
-
-int insert_record(int cluster, struct t2fs_record record)
-{
-    /*
-    int sector = cluster_to_sector(cluster);
-    char* buffer = malloc(TAM_SETOR);
-    struct t2fs_record iterator;
-    int i,j;
-    for(i = 0; i < super_bloco.SectorsPerCluster; i++)
-    {
-        read_sector(i+sector,buffer);
-        j = 0;
-        while(j < TAM_SETOR/sizeof(struct t2fs_record))
-        {
-            memcpy(&iterator,buffer+(j*sizeof(struct t2fs_record)), sizeof(struct t2fs_record));
-            if(iterator.TypeVal == TYPEVAL_INVALIDO)
-            {
-                memcpy(buffer+(j*sizeof(struct t2fs_record)),&record, sizeof(struct t2fs_record));
-                write_sector(i+sector,buffer);
-                free(buffer);
-                return 0;
-            }
-            j++;
-        }
-    }
-    free(buffer);
-    return -1;
-    */
-    struct t2fs_record iterator;
-    unsigned char* buffer = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
-    int parsed_cluster = cluster_to_sector(cluster);
-    read_cluster(parsed_cluster, buffer);
-    int i=0;
-    while( i < (super_bloco.SectorsPerCluster*TAM_SETOR/sizeof(struct t2fs_record)))
-    {
-        memcpy(&iterator,buffer+i*sizeof(struct t2fs_record), sizeof(struct t2fs_record));
-        //print_dir(iterator);
-        if(iterator.TypeVal == TYPEVAL_INVALIDO)
-        {
-            printf("Inseri um registro!!\n");
-            memcpy(buffer+i*sizeof(struct t2fs_record),&record, sizeof(struct t2fs_record));
-            write_cluster(parsed_cluster,buffer);
-            free(buffer);
-            return 0;
-        }
-        i++;
-    }
-    free(buffer);
-    return -1;
-
-}
 
 
 
