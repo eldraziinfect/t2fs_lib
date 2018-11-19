@@ -165,10 +165,112 @@ FILE2 create2 (char *filename)
 	char	*ultimo_dir;
 	int		flag_arquivo_existente = 0;
 	int		endereco_FAT;
-	unsigned char* vazio = calloc(64, sizeof(unsigned char));
-	
+	unsigned char* buffer_vazio = calloc(64, sizeof(unsigned char));
+	int j;
+
     if(!initiated)
 	{	init_data();}
+
+	if(filename[0]=='/') // caminho absoluto
+	{	temp_dir = super_bloco.RootDirCluster; //muda o diretório para o root
+	}
+	// faz o percorrimento
+	temp = strtok(filename, "/");
+	if(temp==NULL) return -1;
+	while(temp!=NULL) //ainda tem subdivisoes no nome)
+	{	if(flag_arquivo_existente == 1)
+		{	return -1; // caminho inválido pois tem '/' depois do nome de um não-dir já existente
+		}
+		if(temp == ".") //same dir
+		{	//não faz nada, já está no diretório certo
+		}
+		else
+		{	if(temp == "..") //father dir
+			{	// acha o ponteiro pro diretório pai:
+				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
+				temp_dir = seek_dir_in_dir(temp_dir, "..");
+			}
+			else // sub dir or file name
+			{	// percorre o diretório atual, tentando encontrar diretório com o mesmo nome de temp
+				ultimo_dir = temp_dir;
+				temp_dir = seek_dir_in_dir(temp_dir, temp); /* Talvez isso avacalhe o valor do dir*/
+
+				if(seek_file_in_dir(temp_dir, temp)	!= -1)
+				{	temp_dir = seek_dir_in_cluster(temp_dir, temp);
+				}
+				if(seek_file_in_cluster(temp_dir, temp)	!= -1)
+					{	flag_arquivo_existente = 1;	// deve-se abrir o arquivo e deixá-lo com 0 bytes
+					}
+			}
+		}
+		ultimo_temp = temp;
+		temp = strtok(filename, "/");
+	}
+
+	if(seek_dir_in_dir(ultimo_dir, ultimo_temp != -1))
+	{	return -1; // Erro: endereço aponta para diretório, não para um arquivo
+	}
+	// valores no fim do loop:
+	// ultimo_temp: nome do arquivo
+	// ultimo_dir: endereço do diretório do arquivo
+
+	//cria o arquivo:
+	if(flag_arquivo_existente)
+	{	//anula o arquivo na FAT e nos dados
+		do
+		{	endereco_FAT = get_elemento_fat(ultimo_dir);// acha o registro do arquivo na fat
+
+			for(j  = 0; j< super_bloco.SectorsPerCluster; j++)
+			{	write_sector(cluster_to_sector(endereco_FAT) + j, buffer_vazio); //apaga nos dados
+			}
+			set_elemento_fat(endereco_FAT, 0x0); // indica que o espaço no disco está livre
+		}
+		while(endereco_FAT != EOF);
+	}
+
+	///set_elemento_fat(int cluster, int value);
+	// inclui os dados do arquivo na fat - só ocupa um lugar
+	endereco_FAT = get_next_livre();
+		if(endereco_FAT == -1)
+		{	return -1; // não há mais espaço no disco.
+		}
+	set_elemento_fat(endereco_FAT, EOF);
+
+	//inclui os dados no diretório
+
+	insert_record(ultimo_dir, vazio);
+	//Não inclui os dados do arquivo nos dados pq ele inicia com 0 bytes (empty)
+
+
+    return 0;//insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
+
+}
+/*-----------------------------------------------------------------------------
+Fun��o:	Apagar um arquivo do disco.
+	O nome do arquivo a ser apagado � aquele informado pelo par�metro "filename".
+Entra:	filename -> nome do arquivo a ser apagado.
+Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (zero).
+	Em caso de erro, ser� retornado um valor diferente de zero.
+-----------------------------------------------------------------------------*/
+
+int delete2 (char *filename)
+{
+    struct	t2fs_record record_vazia;
+	char	*temp = "init";
+	char	*ultimo_temp = "init";
+	char	*temp_dir;
+	char	*ultimo_dir;
+	int		flag_arquivo_existente = 0;
+	int		endereco_FAT;
+	unsigned char* vazio = calloc(64, sizeof(unsigned char));
+	unsigned char* buffer_vazio = calloc(64, sizeof(unsigned char));
+	buffer_setor_vazio
+	int j;
+
+    if(!initiated)
+        init_data();
+    return 0;
+
 
 	if(filename[0]=='/') // caminho absoluto
 	{	temp_dir = super_bloco.RootDirCluster; //muda o diretório para o root
@@ -191,98 +293,8 @@ FILE2 create2 (char *filename)
 			}
 			else // sub dir or file name
 			{	// percorre o diretório atual, tentando encontrar diretório com o mesmo nome de temp
-				ultimo_dir = temp_dir;
 				temp_dir = seek_dir_in_dir(temp_dir, temp); /* Talvez isso avacalhe o valor do dir*/
-				
-				if(seek_file_in_dir(temp_dir, temp)	!= -1)
-				{	temp_dir = seek_dir_in_cluster(temp_dir, temp);
-				}
-				if(seek_file_in_cluster(temp_dir, temp)	!= -1)
-					{	flag_arquivo_existente = 1;	// deve-se abrir o arquivo e deixá-lo com 0 bytes
-					}
-			}
-		}
-		ultimo_temp = temp;
-		temp = strtok(filename, '/');
-	}
 
-	if(seek_dir_in_dir(ultimo_dir, ultimo_temp != -1)
-	{	return -1; // Erro: endereço aponta para diretório, não para um arquivo
-	}
-	// valores no fim do loop:
-	// ultimo_temp: nome do arquivo
-	// ultimo_dir: endereço do diretório do arquivo
-	
-	//cria o arquivo:
-	if(flag_arquivo_existente)
-	{	//anula o arquivo na FAT e nos dados
-		do
-		{	endereco_FAT = get_elemento_fat(ultimo_dir);// acha o registro do arquivo na fat
-
-			for(int j  = 0; j< super_bloco.SectorsPerCluster; j++)
-			{	write_sector((cluster_to_sector(endereco_FAT) + j, buffer_setor_vazio); //apaga nos dados
-			}
-			set_elemento_fat(endereco_FAT, 0x0); // indica que o espaço no disco está livre
-		}
-		while(endereco_FAT != EOF);
-	}
-	
-	///set_elemento_fat(int cluster, int value);
-	// inclui os dados do arquivo na fat - só ocupa um lugar
-	endereco_FAT = get_next_livre();
-		if(endereco_FAT == -1)
-		{	return -1; // não há mais espaço no disco.
-		}
-	set_elemento_fat(endereco_FAT, EOF);
-	
-	//inclui os dados no diretório
-	record_vazia = vazio;
-	
-	insert_record(ultimo_dir, record_vazia);
-	//Não inclui os dados do arquivo nos dados pq ele inicia com 0 bytes (empty)
-	
-	
-    return 0;//insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
-
-}
-/*-----------------------------------------------------------------------------
-Fun��o:	Apagar um arquivo do disco.
-	O nome do arquivo a ser apagado � aquele informado pelo par�metro "filename".
-Entra:	filename -> nome do arquivo a ser apagado.
-Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (zero).
-	Em caso de erro, ser� retornado um valor diferente de zero.
------------------------------------------------------------------------------*/
-
-int delete2 (char *filename)
-{
-    if(!initiated)
-        init_data();
-    return 0;
-	
-	 
-	if(filename[0]=='/') // caminho absoluto
-	{	temp_dir = super_bloco.RootDirCluster; //muda o diretório para o root
-	}
-	// faz o percorrimento
-	temp = strtok(filename, '/');
-	if(temp==NULL) return -1;
-	while(temp!=NULL) //ainda tem subdivisoes no nome)
-	{	if(flag_arquivo_existente == 1)
-		{	return -1; // caminho inválido pois tem '/' depois do nome de um não-dir já existente 
-		}
-		if(temp == ".") //same dir
-		{	//não faz nada, já está no diretório certo
-		}
-		else
-		{	if(temp == "..") //father dir
-			{	// acha o ponteiro pro diretório pai:
-				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
-				temp_dir = seek_dir_in_dir(temp_dir, "..");
-			}
-			else // sub dir or file name
-			{	// percorre o diretório atual, tentando encontrar diretório com o mesmo nome de temp
-				temp_dir = seek_dir_in_dir(temp_dir, temp); /* Talvez isso avacalhe o valor do dir*/
-				
 				if(seek_file_in_dir(temp_dir, temp)	!= -1)
 					{	flag_arquivo_existente = 1;	// file found!
 					}
@@ -297,8 +309,8 @@ int delete2 (char *filename)
 		do
 		{	endereco_FAT = get_elemento_fat(ultimo_dir);// acha o registro do arquivo na fat
 
-			for(int j  = 0; j< super_bloco.SectorsPerCluster; j++)
-			{	write_sector((cluster_to_sector(endereco_FAT) + j, buffer_setor_vazio); //apaga nos dados
+			for(j = 0; j< super_bloco.SectorsPerCluster; j++)
+			{	write_sector(cluster_to_sector(endereco_FAT) + j, buffer_setor_vazio); //apaga nos dados
 			}
 			set_elemento_fat(endereco_FAT, 0x0); // indica que o espaço no disco está livre
 		}
@@ -423,9 +435,9 @@ int seek2 (FILE2 handle, DWORD offset)
 {
     if(!initiated)
         init_data();
-	
+
 	//return move_pointer(DESCRITOR_ARQUIVO tabela[], int handle, int offset)
-	return move_pointer(DESCRITOR_ARQUIVO tabela[], int handle, int offset)
+	return move_pointer(tabela_de_arquivos, handle, offset);
 }
 
 
