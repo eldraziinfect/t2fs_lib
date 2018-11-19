@@ -6,7 +6,7 @@
 typedef struct descritor_arquivo{
     int current_pointer;
     int ocupado;
-    char nome[TAM_NOME_ARQUIVO];
+    char pathname[TAM_NOME_ARQUIVO];
     struct t2fs_record record;
 } DESCRITOR_ARQUIVO;
 

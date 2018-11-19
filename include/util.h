@@ -13,5 +13,7 @@ int seek_dir_in_dir(int cluster, char* dir_name);
 int get_dir_tree(int current_dir_pointer, char *buffer);
 int insert_record(int cluster, struct t2fs_record r1);
 void print_sector_as_dir(int cluster);
+void prepend(char* s, const char* t);
+int is_deletable_dir(int cluster);
 #endif
 

@@ -7,7 +7,7 @@ void init_tabela_arquivos(DESCRITOR_ARQUIVO tabela[])
     {
         tabela[i].current_pointer = 0;
         tabela[i].ocupado = 0;
-        strcpy(tabela[i].nome,"");
+        strcpy(tabela[i].pathname,"");
         tabela[i].record.TypeVal = 0;
         strcpy(tabela[i].record.name,"");
         tabela[i].record.bytesFileSize = -1;
@@ -37,7 +37,7 @@ int insert_tabela_descritores_de_arquivo(DESCRITOR_ARQUIVO tabela[],struct t2fs_
         return i;
     tabela[i].ocupado = 1;
     tabela[i].current_pointer = 0;
-    strcpy(tabela[i].nome,pathname);
+    strcpy(tabela[i].pathname,pathname);
     memcpy(&tabela[i].record, &record, sizeof(struct t2fs_record));
     return i;
 
@@ -49,7 +49,7 @@ int remove_descritor(DESCRITOR_ARQUIVO tabela[], int i)
         return -1;
     tabela[i].current_pointer = 0;
     tabela[i].ocupado = 0;
-    strcpy(tabela[i].nome,"");
+    strcpy(tabela[i].pathname,"");
     tabela[i].record.TypeVal = 0;
     strcpy(tabela[i].record.name,"");
     tabela[i].record.bytesFileSize = -1;
@@ -58,11 +58,11 @@ int remove_descritor(DESCRITOR_ARQUIVO tabela[], int i)
     return 0;
 }
 
-int get_descritor(DESCRITOR_ARQUIVO tabela[], char nome[])
+int get_descritor(DESCRITOR_ARQUIVO tabela[], char pathname[])
 {
     int i = 0;
     for(i = 0; i < MAX_FILES; i++)
-        if(strcmp(tabela[i].nome,nome)==0)
+        if(strcmp(tabela[i].pathname,pathname)==0)
             return i;
     return -1;
 }
