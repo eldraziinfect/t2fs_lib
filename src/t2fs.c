@@ -8,8 +8,9 @@ struct t2fs_superbloco super_bloco;
 struct t2fs_record registro;
 DESCRITOR_ARQUIVO tabela_de_arquivos[MAX_FILES];
 
-char *buffer_cluster;
-char  *current_dir_pointer;
+unsigned char *buffer_cluster;
+int current_dir_pointer;
+//int aux_dir_pointer;
 //char *current_dir_name;
 
 //Funções:
@@ -17,9 +18,12 @@ void init_data(void);
 
 void init_data(void)
 {
+    if(initiated!=0)
+        return;
     init_tabela_arquivos(tabela_de_arquivos);
     if (!read_sector(0, (unsigned char *) &super_bloco))
     {
+        initiated = 1;
         printf("Superbloco\n");
         super_bloco.id[4] = '\0';
         printf("Id: %s\n",super_bloco.id);
@@ -38,8 +42,90 @@ void init_data(void)
         buffer_cluster = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
         init_api_cluster(super_bloco.SectorsPerCluster);
         get_root_dir(buffer_cluster);
-		current_dir = super_bloco.RootDirCluster;
-        initiated = 1;
+        //current_dir = super_bloco.RootDirCluster;
+        current_dir_pointer = super_bloco.RootDirCluster;
+        printf("chdir .\n");
+        chdir2(".");
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+
+        printf("chdir /dir1\n");
+        chdir2("/dir1");
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+        //chdir2("..");
+        char *pathname = malloc(TAM_NOME_ARQUIVO);
+        printf("getcw = %d\n", getcwd2(pathname,TAM_NOME_ARQUIVO));
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+        free(pathname);
+
+        printf("chdir ..\n");
+        chdir2("..");
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+
+        char *path2 = malloc(TAM_NOME_ARQUIVO);
+        getcwd2(path2,TAM_NOME_ARQUIVO);
+        printf("getcw = %d\n", getcwd2(path2,TAM_NOME_ARQUIVO));
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+        free(path2);
+
+
+        //printf("====================================================\n");
+        printf("mkdir /dir3\n");
+        mkdir2("/dir3");
+        //printf("====================================================\n");
+        printf("mkdir /dir1/dir2\n");
+        mkdir2("/dir1/dir2");
+        print_sector_as_dir(2);
+        print_sector_as_dir(5);
+        print_sector_as_dir(11);
+        print_sector_as_dir(13);
+/*
+        printf("cd dir3\n");
+        chdir2("/dir3");
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+
+        printf("cd ..\n");
+        chdir2("..");
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+        char *path4 = malloc(TAM_NOME_ARQUIVO);
+        printf("getcw = %d\n",getcwd2(path4,TAM_NOME_ARQUIVO));
+
+        printf("cd /dir1/dir2\n");
+        chdir2("/dir1/dir2");
+*/
+/*        printf("\n\n\n\n\n\n");
+        seek_file_in_dir(5,"teste");
+*/
+        //seek_file_in_dir(super_bloco.RootDirCluster,"teste");
+        //seek_file_in_dir(5,"teste");
+/*
+
+        mkdir2("/dir3");
+        printf("====================================================");
+        printf("\n\n\n\n\n");
+        seek_file_in_dir(super_bloco.RootDirCluster,"teste");
+*/
+/*
+        mkdir2("/dir1/dir2");
+        //seek_file_in_dir(super_bloco.RootDirCluster,"teste");
+        printf("\n\n\n\n\n\n");
+        seek_file_in_dir(super_bloco.RootDirCluster,"teste");
+        printf("\n\n\n\n\n\n");
+        seek_file_in_dir(5,"cachorro");
+        printf("\n\n\n\n\n\n");
+        seek_file_in_dir(13,"cachorro");
+        printf("\n\n\n\n\n\n");
+*/
+/*
+        char *path3 = malloc(TAM_NOME_ARQUIVO);
+        chdir2("/dir1/dir2");
+        getcwd2(path3,TAM_NOME_ARQUIVO);
+        free(path3);
+
+        chdir2("/dir3");
+        char *path4 = malloc(TAM_NOME_ARQUIVO);
+        getcwd2(path4,TAM_NOME_ARQUIVO);
+        free(path4);
+        */
         return;
     }
     else
@@ -102,44 +188,44 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 FILE2 create2 (char *filename)
 {
     struct t2fs_record record;
-	char *token;
-	int *temp_dir;
-	
+    char *token;
+    int *temp_dir;
+
     if(!initiated)
         init_data();
     /**
     TODO:
-		Inserir no disco.
+    	Inserir no disco.
     */
-	 
-	if(filename[0]=='/') // caminho absoluto
-	{	//muda o diretório para o root:
-		// pega o endereço no super bloco.
-		temp_dir = super_bloco.RootDirCluster;
-	}
-	// faz o percorrimento
-	while(1==1) //ainda tem subdivisoes no nome)
-		temp = strtok(filename, '/');
-		if(temp == ".") //same dir
-		{	//não faz nada, já está no diretório certo
-		}
-		else
-		{	if(temp == "..") //father dir
-			{	// acha o ponteiro pro diretório pai:
-				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
-				seek_file_in_cluster(temp_dir, "..");
-			}
-			else // sub dir or file name
-			{	// percorre o diretório atual, tentando encontrar o arquivo com o mesmo nome de temp
-				if(achou)
-					// se for um diretório: abre ele; = cd temp
-					// se for um arquivo: erro - arquivo já existe
-				else
-					//cria o arquivo:
-					// procura espaço na FAT
-			}
-		}
-	}
+    /*
+    	if(filename[0]=='/') // caminho absoluto
+    	{	//muda o diretório para o root:
+    		// pega o endereço no super bloco.
+    		temp_dir = super_bloco.RootDirCluster;
+    	}
+    	// faz o percorrimento
+    	while(1==1) //ainda tem subdivisoes no nome)
+    		char* temp = strtok(filename, '/');
+    		if(temp == ".") //same dir
+    		{	//não faz nada, já está no diretório certo
+    		}
+    		else
+    		{	if(temp == "..") //father dir
+    			{	// acha o ponteiro pro diretório pai:
+    				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
+    				seek_file_in_cluster(temp_dir, "..");
+    			}
+    			else // sub dir or file name
+    			{	// percorre o diretório atual, tentando encontrar o arquivo com o mesmo nome de temp
+    				if(achou)
+    					// se for um diretório: abre ele; = cd temp
+    					// se for um arquivo: erro - arquivo já existe
+    				else
+    					//cria o arquivo:
+    					// procura espaço na FAT
+    			}
+    		}
+    	}*/
     return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 }
 /*-----------------------------------------------------------------------------
@@ -285,11 +371,75 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 -----------------------------------------------------------------------------*/
 int mkdir2 (char *pathname)
 {
-    if(!initiated)
+    int next_dir_pointer;
+    int aux_dir_pointer;
+    struct t2fs_record record;
+    struct t2fs_record r2;
+    //printf("mkdir %s\n",pathname);
+    char* aux = malloc(sizeof(strlen(pathname)));
+    char* pch;
+    strcpy(aux,pathname);
+    aux[0] = '/';
+    if(initiated == 0)
         init_data();
+    switch(pathname[0])
+    {
+    case '/': //caminho absoluto.
+        aux_dir_pointer = super_bloco.RootDirCluster;
+        break;
+    case '.': //relativo
+        aux_dir_pointer = current_dir_pointer;
+        if(pathname[1] == '.')
+        {
+            aux[1] = '/';
+            aux_dir_pointer = seek_dir_in_dir(aux_dir_pointer,"..");
+        }
+        break;
+    default:
+        return -1;
+    }
+    pch = strtok(aux,"/");
+    next_dir_pointer = aux_dir_pointer;
+    while(pch != NULL)
+    {
+        //printf("PCH: %s\n",pch);
+        next_dir_pointer = seek_dir_in_dir(next_dir_pointer,pch);
+        if(next_dir_pointer == -1)
+        {
+            record.TypeVal = TYPEVAL_DIRETORIO;
+            strcpy(record.name,pch);
+            record.bytesFileSize = super_bloco.SectorsPerCluster*TAM_SETOR;
+            record.clustersFileSize = 1;
+            record.firstCluster = get_next_livre();
+            set_elemento_fat(record.firstCluster,CLUSTER_EOF);
+            printf("Entao inseri: no dir %d\n", aux_dir_pointer);
+            print_dir(record);
+            insert_record2(aux_dir_pointer,record);
+
+
+            record.name[1] = '\0';
+            //insert_record(record.firstCluster,record);
+
+            r2.TypeVal = TYPEVAL_DIRETORIO;
+            strcpy(r2.name,"..");
+            r2.bytesFileSize = super_bloco.SectorsPerCluster*TAM_SETOR;
+            r2.clustersFileSize = 1;
+            r2.firstCluster = aux_dir_pointer;
+
+            strcpy(record.name,".");
+            printf("Depois foi pra %d e inseri 2 registros %s e %s\n",record.firstCluster,record.name,r2.name);
+            print_dir(record);
+            print_dir(r2);
+            insert_record2(record.firstCluster,record);
+            insert_record2(record.firstCluster,r2);
+            break;
+        }
+        pch = strtok(NULL,"/.");
+        aux_dir_pointer = next_dir_pointer;
+    }
+    free(aux);
     return 0;
 }
-
 
 /*-----------------------------------------------------------------------------
 Fun��o:	Apagar um subdiret�rio do disco.
@@ -322,10 +472,38 @@ Entra:	pathname -> caminho do novo diret�rio de trabalho.
 Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (zero).
 		Em caso de erro, ser� retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
+
 int chdir2 (char *pathname)
 {
-    if(!initiated)
+    //printf("cd %s\n",pathname);
+    char* aux = malloc(sizeof(strlen(pathname)));
+    char* pch;
+    strcpy(aux,pathname);
+    pch = strtok(aux,"/.");
+    if(initiated == 0)
         init_data();
+    switch(pathname[0])
+    {
+    case '/':
+        current_dir_pointer = super_bloco.RootDirCluster;
+        break;
+    case '.':
+        if(pathname[1] == '.')
+            current_dir_pointer = seek_dir_in_dir(current_dir_pointer,"..");
+        break;
+    default:
+        return -1;
+    }
+    while(pch != NULL)
+    {
+        current_dir_pointer = seek_dir_in_dir(current_dir_pointer,pch);
+        if(current_dir_pointer == -1)
+        {
+            return -1;
+        }
+        pch = strtok(NULL,"/.");
+    }
+    free(aux);
     return 0;
 }
 
@@ -344,9 +522,26 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 -----------------------------------------------------------------------------*/
 int getcwd2 (char *pathname, int size)
 {
+    //printf("getcwd\n");
     if(!initiated)
         init_data();
-    return 0;
+    char* buffer = malloc(sizeof(TAM_NOME_ARQUIVO + 1));
+    //printf("Ta tentando printar o caminho do %d\n",current_dir_pointer);
+    if(get_dir_tree(current_dir_pointer, buffer) == -1)
+        return -1;
+    //printf("DIRETORIO ATUAL: %s\n",buffer);
+    if(strlen(buffer) < size)
+    {
+        strcpy(pathname,buffer);
+        free(buffer);
+        return 0;
+
+    }
+    else
+    {
+        free(buffer);
+        return -1;
+    }
 }
 
 
