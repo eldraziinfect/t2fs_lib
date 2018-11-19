@@ -61,7 +61,7 @@ void init_data(void)
         chdir2("..");
         //printf("CURRENT DIR: %d\n",current_dir_pointer);
 
-        char *path2 = malloc(TAM_NOME_ARQUIVO);
+        char *path2 = malloc(TAM_NOME_ARQUIVO*sizeof(char));
         getcwd2(path2,TAM_NOME_ARQUIVO);
         printf("getcw = %d\n", getcwd2(path2,TAM_NOME_ARQUIVO));
         free(path2);
@@ -73,30 +73,58 @@ void init_data(void)
 
         printf("mkdir /dir1/dir2\n");
         mkdir2("/dir1/dir2");
+        mkdir2("/dir1/dir5");
         print_sector_as_dir(2);
         print_sector_as_dir(5);
         print_sector_as_dir(11);
         print_sector_as_dir(13);
-
+        print_sector_as_dir(15);
+        print_sector_as_dir(16);
 
         printf("cd dir3\n");
         chdir2("/dir3");
         printf("CURRENT DIR: %d\n",current_dir_pointer);
+        chdir2("..");
 
-
-
-        char *path4 = malloc(TAM_NOME_ARQUIVO);
-        printf("getcw = %d\n",getcwd2(path4,TAM_NOME_ARQUIVO));
-        printf("Current dir: %s\n",path4);
-
+      //  char *path4 = malloc(TAM_NOME_ARQUIVO*sizeof(char));
+       // printf("getcw = %d\n",getcwd2(path4,TAM_NOME_ARQUIVO));
+      // printf("Current dir: %s\n",path4);
+       // free(path4);
+//
         printf("cd /dir1/dir2\n");
-        chdir2("/dir1/dir2");
+        //chdir2("/dir1/dir2");
+        chdir2("./dir1");
+        chdir2("./dir2");
+        chdir2("dir5");
+
+        printf("Making dir3\n");
+        mkdir2("/dir1/dir2/dir3");
+        print_sector_as_dir(13);
+
+        char *path4 = malloc(TAM_NOME_ARQUIVO*sizeof(char));
         printf("getcw = %d\n",getcwd2(path4,TAM_NOME_ARQUIVO));
         printf("Current dir: %s\n",path4);
-
-
-
         free(path4);
+/*        printf("CURRENT DIR: %d\n",current_dir_pointer);
+
+        char *path5 = malloc(TAM_NOME_ARQUIVO*sizeof(char));
+        printf("getcw = %d\n",getcwd2(path5,TAM_NOME_ARQUIVO));
+        printf("Current dir: %s\n",path5);
+        free(path5);
+        chdir2("..");
+        printf("CURRENT DIR: %d\n",current_dir_pointer);
+
+        char *path3 = malloc(TAM_NOME_ARQUIVO*sizeof(char));
+        getcwd2(path3,TAM_NOME_ARQUIVO);
+        printf("Current dir: %s\n",path3);
+
+        //mkdir2("/dir1/dir2/dir5");
+        //chdir2("dir4");
+        //printf("getcw = %d\n",getcwd2(path4,TAM_NOME_ARQUIVO));
+        //printf("Current dir: %s\n",path4);
+*/
+        //free(path3);
+
         return;
     }
     else
@@ -357,9 +385,9 @@ int mkdir2 (char *pathname)
     struct t2fs_record record;
     struct t2fs_record r2;
     //printf("mkdir %s\n",pathname);
-    char* aux = malloc(sizeof(strlen(pathname)));
+    char* aux = malloc(strlen(pathname));
     char* pch;
-    strcpy(aux,pathname);
+    strncpy(aux,pathname,strlen(pathname));
     aux[0] = '/';
     if(initiated == 0)
         init_data();
@@ -383,6 +411,7 @@ int mkdir2 (char *pathname)
     next_dir_pointer = aux_dir_pointer;
     while(pch != NULL)
     {
+        printf("PCH: %s\n",pch);
         //printf("PCH: %s\n",pch);
         next_dir_pointer = seek_dir_in_dir(next_dir_pointer,pch);
         if(next_dir_pointer == -1)
@@ -415,8 +444,8 @@ int mkdir2 (char *pathname)
             insert_record(record.firstCluster,r2);
             break;
         }
-        pch = strtok(NULL,"/.");
         aux_dir_pointer = next_dir_pointer;
+        pch = strtok(NULL,"/");
     }
     free(aux);
     return 0;
@@ -454,6 +483,50 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 		Em caso de erro, ser� retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
 
+int chdir2 (char *pathname){
+    int temp_dir;
+    char *temp = malloc(TAM_NOME_ARQUIVO);
+    char *pch;
+    strcpy(temp,pathname);
+    if(strcmp(pathname,"/") == 0)
+        current_dir_pointer = super_bloco.RootDirCluster;
+    if(pathname[0]=='/') // caminho absoluto
+	{	//muda o diretório para o root:
+		// pega o endereço no super bloco.
+		temp_dir = super_bloco.RootDirCluster;
+	}
+	// faz o percorrimento
+	pch = strtok(temp, "/");
+	temp_dir = current_dir_pointer;
+	if(pch==NULL) return -1;
+	while(pch!=NULL) //ainda tem subdivisoes no nome)
+	{
+		if(strcmp(pch,".") == 0) //same dir
+		{
+		}
+		else
+		{
+		    if(strcmp(pch,"..") == 0) //father dir
+			{	// acha o ponteiro pro diretório pai:
+				// percorre o diretório até achar o '..' -- deve ser o segundo arquivo
+				temp_dir = get_father_dir(temp_dir);
+			}
+			else // sub dir or file name
+			{	// percorre o diretório atual, tentando encontrar diretório com o mesmo nome de temp
+				temp_dir = seek_dir_in_dir(temp_dir, pch);
+				if(temp_dir	== -1)
+					{
+					    return -1;	// deve-se abrir o arquivo e deixá-lo com 0 bytes
+					}
+			}
+		}
+		pch = strtok(NULL, "/");
+	}
+	current_dir_pointer = temp_dir;
+	free(temp);
+	return 0;
+}
+/*
 int chdir2 (char *pathname)
 {
     //printf("cd %s\n",pathname);
@@ -488,7 +561,7 @@ int chdir2 (char *pathname)
     return 0;
 }
 
-
+*/
 /*-----------------------------------------------------------------------------
 Fun��o:	Informa o diret�rio atual de trabalho.
 		O "pathname" do diret�rio de trabalho deve ser copiado para o buffer indicado por "pathname".
@@ -503,25 +576,25 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 -----------------------------------------------------------------------------*/
 int getcwd2 (char *pathname, int size)
 {
+    int retorno;
     if(!initiated)
         init_data();
-    char* buffer = malloc(sizeof(TAM_NOME_ARQUIVO + 1));
+    char* buffer = malloc(TAM_NOME_ARQUIVO + 1);
     //printf("Ta tentando printar o caminho do %d\n",current_dir_pointer);
     if(get_dir_tree(current_dir_pointer, buffer) == -1)
         return -1;
     //printf("DIRETORIO ATUAL: %s\n",buffer);
     if(strlen(buffer) < size)
     {
-        strcpy(pathname,buffer);
-        free(buffer);
-        return 0;
-
+        strncpy(pathname,buffer,strlen(buffer));
+        retorno = 0;
     }
     else
     {
-        free(buffer);
-        return -1;
+        retorno = -1;
     }
+    free(buffer);
+    return retorno;
 }
 
 
