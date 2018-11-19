@@ -148,6 +148,7 @@ void init_data(void)
         DIRENT2 *dirent = malloc(sizeof(DIRENT2));
        // readdir2(0,dirent);
         printf("Readdir2 = %d\n",readdir2(0,dirent));
+        print_sector_as_dir(2);
         print_sector_as_dir(5);
         free(dirent);
         return;
@@ -211,7 +212,7 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna o han
 -----------------------------------------------------------------------------*/
 FILE2 create2 (char *filename)
 {
-    
+
         struct	t2fs_record record_vazia;
         struct	t2fs_record record;
     	char	*temp = "init";
@@ -301,7 +302,7 @@ FILE2 create2 (char *filename)
     	insert_record(ultimo_dir, record);
     	//Não inclui os dados do arquivo nos dados pq ele inicia com 0 bytes (empty)
 
-    
+
     return insert_tabela_descritores_de_arquivo(tabela_de_arquivos, record, filename);
 
 }
@@ -315,7 +316,7 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 
 int delete2 (char *filename)
 {
-    
+
     struct	t2fs_record record_vazia;
     struct	t2fs_record record;
     char	*temp = "init";
@@ -602,13 +603,11 @@ int mkdir2 (char *pathname)
 // faz o percorrimento
     pch = strtok(temp, "/");
     temp_dir = current_dir_pointer;
-    aux_dir_pointer = temp_dir;
     if(pathname[0]=='/') // caminho absoluto
     {
-//muda o diretório para o root:
-// pega o endereço no super bloco.
         temp_dir = super_bloco.RootDirCluster;
     }
+    aux_dir_pointer = temp_dir;
     if(pch==NULL) return -1;
     while(pch!=NULL) //ainda tem subdivisoes no nome)
     {
@@ -626,7 +625,9 @@ int mkdir2 (char *pathname)
             else // sub dir or file name
             {
 // percorre o diretório atual, tentando encontrar diretório com o mesmo nome de temp
+                printf("Looking for %s in %d =",pch,temp_dir);
                 temp_dir = seek_dir_in_dir(temp_dir, pch);
+                printf("%d\nAux_dir_pointer: %d\n",temp_dir,aux_dir_pointer);
                 if(temp_dir == -1)
                 {
                     next_dir_pointer = temp_dir;
@@ -688,11 +689,11 @@ int rmdir2 (char *pathname)
         temp_dir = super_bloco.RootDirCluster;
     pch = strtok(temp, "/");
     temp_dir = current_dir_pointer;
-    aux_dir_pointer = temp_dir;
     if(pathname[0]=='/')
     {
         temp_dir = super_bloco.RootDirCluster;
     }
+    aux_dir_pointer = temp_dir;
     if(pch==NULL) return -1;
     while(pch!=NULL)
     {
@@ -990,8 +991,6 @@ int readdir2 (DIR2 handle, DIRENT2 *dentry)
         strcpy(dirent.name,tabela_de_arquivos[handle].record.name);
         dirent.fileType = tabela_de_arquivos[handle].record.TypeVal;
         dirent.fileSize = tabela_de_arquivos[handle].record.bytesFileSize;
-
-        printf("Func: %s\n",dirent.name);
         memcpy(dentry,&dirent,sizeof(DIRENT2));
         return 0;
     }
