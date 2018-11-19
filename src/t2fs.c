@@ -135,9 +135,21 @@ void init_data(void)
 
         DIR2 d1 = opendir2("/dir1");
         DIR2 d2 = opendir2("/dir1/dir8");
-        printf("d1 = %d, d2 = %d\n",d1,d2);
-
+        DIR2 d3 = opendir2("/dir1/dir8");
+        DIR2 d4 = opendir2("/dir1/dir8");
+        DIR2 d5 = opendir2("/dir1/dir8");
+        DIR2 d6 = opendir2("/dir1/dir8");
+        DIR2 d7 = opendir2("/dir1/dir8");
+        DIR2 d8 = opendir2("/dir1/dir8");
+        DIR2 d9 = opendir2("/dir1/dir8");
+        DIR2 d10 = opendir2("/dir1/dir8");
+        DIR2 d11 = opendir2("/dir1/dir8");
+        printf("%d\n %d\n%d\n %d\n%d\n %d\n%d\n %d\n%d\n %d\n%d \n",d1,d2,d3,d3,d5,d6,d7,d8,d9,d10,d11);
+        DIRENT2 *dirent = malloc(sizeof(DIRENT2));
+       // readdir2(0,dirent);
+        printf("Readdir2 = %d\n",readdir2(0,dirent));
         print_sector_as_dir(5);
+        free(dirent);
         return;
     }
     else
@@ -881,6 +893,7 @@ DIR2 opendir2 (char *pathname)
 {
     DIR2 handle = -1;
     struct t2fs_record record;
+    char *path = malloc(TAM_NOME_ARQUIVO);
     if(!initiated)
         init_data();
     int ultimo_dir;
@@ -910,31 +923,41 @@ DIR2 opendir2 (char *pathname)
             }
             else
             {
-                ultimo_dir = temp_dir;
-                printf("%s, %d\n",pch,ultimo_dir);
-                temp_dir = seek_dir_in_dir(temp_dir, pch);
-                printf("=> %s, %d\n",pch,temp_dir);
+                do
+                {
+                    ultimo_dir = temp_dir;
+                    printf("%s, %d\n",pch,ultimo_dir);
+                    temp_dir = seek_dir_in_dir(temp_dir, pch);
+                    printf("=> %s, %d\n",pch,temp_dir);
+                    pch = strtok(NULL, "/");
+                }
+                while(pch != NULL);
+                printf("Passou do while com : %d\n\n",temp_dir);
                 if(temp_dir == -1)
                 {
-                    handle = get_descritor_livre(tabela_de_arquivos); // deve-se abrir o arquivo e deixá-lo com 0 bytes
-                    printf("HANDLE: %d\n",handle);
-                    if(handle)
-                    {
-                        tabela_de_arquivos[handle].ocupado = 1;
-                        tabela_de_arquivos[handle].current_pointer = 0;
-                        strcpy(tabela_de_arquivos[handle].pathname,pathname);
-                        tabela_de_arquivos[handle].record.firstCluster = ultimo_dir;
-                        tabela_de_arquivos[handle].record.TypeVal = TYPEVAL_DIRETORIO;
-//inicializar o record (ultimo dir) e inserir na tabela.
-                        break;
-                    }
                     break;
                 }
+                handle = get_descritor_livre(tabela_de_arquivos); // deve-se abrir o arquivo e deixá-lo com 0 bytes
+                printf("HANDLE: %d\n",handle);
+                if(handle >= 0)
+                {
+                    tabela_de_arquivos[handle].ocupado = 1;
+                    tabela_de_arquivos[handle].current_pointer = 0;
+                    strcpy(tabela_de_arquivos[handle].pathname,pathname);
+                    get_dir_tree(temp_dir,path);
+                    strcpy(tabela_de_arquivos[handle].record.name,path);
+                    tabela_de_arquivos[handle].record.firstCluster = ultimo_dir;
+                    tabela_de_arquivos[handle].record.TypeVal = TYPEVAL_DIRETORIO;
+//inicializar o record (ultimo dir) e inserir na tabela.
+                    break;
+                }
+                break;
             }
         }
         pch = strtok(NULL, "/");
     }
     free(temp);
+    free(path);
     return handle;
 }
 
@@ -954,9 +977,23 @@ Sa�da:	Se a opera��o foi realizada com sucesso, a fun��o retorna "0" (
 -----------------------------------------------------------------------------*/
 int readdir2 (DIR2 handle, DIRENT2 *dentry)
 {
+    DIRENT2 dirent;
     if(!initiated)
         init_data();
-    return 0;
+    if((tabela_de_arquivos[handle].ocupado == 1) && (tabela_de_arquivos[handle].record.TypeVal == TYPEVAL_DIRETORIO))
+    {
+        strcpy(dirent.name,tabela_de_arquivos[handle].record.name);
+        dirent.fileType = tabela_de_arquivos[handle].record.TypeVal;
+        dirent.fileSize = tabela_de_arquivos[handle].record.bytesFileSize;
+
+        printf("Func: %s\n",dirent.name);
+        memcpy(dentry,&dirent,sizeof(DIRENT2));
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 
