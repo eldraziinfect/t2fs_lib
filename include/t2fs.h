@@ -291,14 +291,12 @@ int readdir2 (DIR2 handle, DIRENT2 *dentry);
 
 /*-----------------------------------------------------------------------------
 Função:	Fecha o diretório identificado pelo parâmetro "handle".
-
 Entra:	handle -> identificador do diretório que se deseja fechar (encerrar a operação).
-
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.
 -----------------------------------------------------------------------------*/
-int closedir2 (DIR2 handle);
 
+int closedir2 (DIR2 handle);
 
 /*-----------------------------------------------------------------------------
 Função:	Função usada para criar um caminho alternativo (softlink) com o nome dado por linkname (relativo ou absoluto) para um arquivo ou diretório fornecido por filename.

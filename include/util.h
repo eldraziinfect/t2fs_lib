@@ -9,6 +9,7 @@ void print_dir(struct t2fs_record record);
 int cluster_to_sector(int cluster);
 int seek_file_in_dir(int sector, char* file_name);
 int get_father_dir(int cluster);
+int free_dir_entry(int cluster, char *dir_name);
 int seek_dir_in_dir(int cluster, char* dir_name);
 int get_dir_tree(int current_dir_pointer, char *buffer);
 int insert_record(int cluster, struct t2fs_record r1);

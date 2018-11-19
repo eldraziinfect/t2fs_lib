@@ -149,6 +149,34 @@ int seek_file_in_dir(int cluster, char* file_name)
     return -1;
 }
 
+int free_dir_entry(int cluster, char *dir_name)
+{
+    int sector = cluster_to_sector(cluster);
+    unsigned char* buffer = malloc(TAM_SETOR);
+    struct t2fs_record iterator;
+    int i,j;
+    for(i = 0; i < super_bloco.SectorsPerCluster; i++)
+    {
+        read_sector(i+sector,buffer);
+        j = 0;
+        while(j < TAM_SETOR/sizeof(struct t2fs_record))
+        {
+            memcpy(&iterator,buffer+(j*sizeof(struct t2fs_record)), sizeof(struct t2fs_record));
+            if(strcmp(iterator.name,dir_name) == 0)
+            {
+                iterator.TypeVal = TYPEVAL_INVALIDO;
+                memcpy(buffer+(j*sizeof(struct t2fs_record)),&iterator, sizeof(struct t2fs_record));
+                write_sector(i+sector,buffer);
+                free(buffer);
+                return 0;
+            }
+            j++;
+        }
+    }
+    free(buffer);
+    return -1;
+}
+
 
 int seek_dir_by_first_cluster(int cluster, int first_cluster, char *dir_name)
 {
