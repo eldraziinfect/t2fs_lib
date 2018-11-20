@@ -62,13 +62,14 @@ int is_deletable_dir(int cluster)
         while(j < TAM_SETOR/sizeof(struct t2fs_record))
         {
             memcpy(&iterator,buffer+(j*sizeof(struct t2fs_record)), sizeof(struct t2fs_record));
-            if(strcmp(iterator.name,".") != 0){
+            if(strcmp(iterator.name,".") != 0)
+            {
                 if(strcmp(iterator.name,"..") != 0)
                 {
                     if(iterator.bytesFileSize != 0)
                     {
-                    irregular = -1;
-                    break;
+                        irregular = -1;
+                        break;
                     }
                 }
             }
@@ -81,7 +82,7 @@ int is_deletable_dir(int cluster)
 
 int get_root_dir(unsigned char* buffer)
 {
-    printf("Getting root dir...\n");
+    //printf("Getting root dir...\n");
     int root_dir = cluster_to_sector(super_bloco.RootDirCluster);
     struct t2fs_record record;
     if(read_cluster(root_dir, buffer) == 0)
@@ -127,6 +128,8 @@ int seek_dir_in_dir(int cluster, char* dir_name)
 }
 int seek_file_in_dir(int cluster, char* file_name)
 {
+    return seek_dir_in_dir(cluster,file_name);
+    /*
     struct t2fs_record iterator;
     unsigned char* buffer = malloc(super_bloco.SectorsPerCluster*TAM_SETOR);
 
@@ -147,6 +150,7 @@ int seek_file_in_dir(int cluster, char* file_name)
     }
     free(buffer);
     return -1;
+    */
 }
 
 int free_dir_entry(int cluster, char *dir_name)
@@ -290,7 +294,20 @@ int insert_record(int cluster, struct t2fs_record r1)
     }
     free(buffer);
     return -1;
+
 }
+
+void flush_cluster(int cluster)
+{
+    int i = 0;
+    unsigned char *flush = calloc(1,TAM_SETOR);
+    int sector = cluster_to_sector(cluster);
+    for(i=0;i<super_bloco.SectorsPerCluster;i++)
+        write_sector(cluster_to_sector(cluster)+i,flush);
+    free(flush);
+    return;
+}
+
 
 
 

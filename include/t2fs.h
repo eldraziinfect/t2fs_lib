@@ -1,7 +1,8 @@
-#include "../include/libc.h"
+/*#include "../include/libc.h"
 #include "../include/apidisk.h"
 #include "../include/constants.h"
 #include "../include/support.h"
+*/
 #ifndef __LIBT2FS___
 #define __LIBT2FS___
 
@@ -56,7 +57,7 @@ typedef struct {
 
 #pragma pack(pop)
 
-
+void init_data(void);
 /*-----------------------------------------------------------------------------
 Função: Usada para identificar os desenvolvedores do T2FS.
 	Essa função copia um string de identificação para o ponteiro indicado por "name".

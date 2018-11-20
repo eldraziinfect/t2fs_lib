@@ -16,5 +16,6 @@ int insert_record(int cluster, struct t2fs_record r1);
 void print_sector_as_dir(int cluster);
 void prepend(char* s, const char* t);
 int is_deletable_dir(int cluster);
+void flush_cluster(int cluster);
 #endif
 

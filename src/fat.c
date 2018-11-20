@@ -15,7 +15,6 @@ int init_fat()
     descritor_fat.tamanho = tam_fat_cluster;
     descritor_fat.inicio = inicio_fat;
     descritor_fat.fim = final_fat;
-    //fat.tabela = malloc(tam_fat_cluster*sizeof(int));
     return 0;
 }
 

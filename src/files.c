@@ -14,7 +14,7 @@ void init_tabela_arquivos(DESCRITOR_ARQUIVO tabela[])
         tabela[i].record.clustersFileSize = -1;
         tabela[i].record.firstCluster = -1;
     }
-    printf("Tabela de Descritores de Arquivo Iniciada!\n");
+    return;
 }
 
 int get_descritor_livre(DESCRITOR_ARQUIVO tabela[])
