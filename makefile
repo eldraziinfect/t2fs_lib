@@ -14,18 +14,18 @@ INC_DIR=./include
 BIN_DIR=./bin
 SRC_DIR=./src
 TEST_DIR=./exemplo
-all: t2fs libs
+all: t2fs libs 
 
 
 t2fs:
-	$(CC) -c $(SRC_DIR)/files.c -Wall -o $(BIN_DIR)/files.o
-	$(CC) -c $(SRC_DIR)/disk.c -Wall -o $(BIN_DIR)/disk.o
-	$(CC) -c $(SRC_DIR)/fat.c -Wall -o $(BIN_DIR)/fat.o
-	$(CC) -c $(SRC_DIR)/util.c -Wall -o $(BIN_DIR)/util.o
-	$(CC) -c $(SRC_DIR)/t2fs.c -Wall -o $(BIN_DIR)/t2fs.o
+	$(CC)  -Wall -c $(SRC_DIR)/files.c -o $(BIN_DIR)/files.o  -I$(INC_DIR)
+	$(CC)  -Wall -c $(SRC_DIR)/disk.c  -o $(BIN_DIR)/disk.o   -I$(INC_DIR)
+	$(CC)  -Wall -c $(SRC_DIR)/fat.c   -o $(BIN_DIR)/fat.o    -I$(INC_DIR)
+	$(CC)  -Wall -c $(SRC_DIR)/util.c  -o $(BIN_DIR)/util.o   -I$(INC_DIR)
+	$(CC)  -Wall -c $(SRC_DIR)/t2fs.c  -o $(BIN_DIR)/t2fs.o   -I$(INC_DIR)
 
 libs:
-	ar rcs $(LIB_DIR)/libt2fs.a $(BIN_DIR)/t2fs.o $(LIB_DIR)/apidisk.o $(BIN_DIR)/files.o $(BIN_DIR)/disk.o $(BIN_DIR)/fat.o $(BIN_DIR)/util.o
+	ar crs $(LIB_DIR)/libt2fs.a  $(LIB_DIR)/apidisk.o $(BIN_DIR)/*.o
 main:
 	cd TEST_DIR
 	gcc -c main.c
